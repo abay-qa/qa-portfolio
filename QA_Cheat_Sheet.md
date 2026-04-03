@@ -215,3 +215,10 @@ sqlite3 qa_practice.db    -- open/create database
 | git pull | Download latest changes |
 | git status | See what changed |
 | git remote -v | Check remote URL |
+
+## 12. Bug Tracking — Jira
+
+- Create project → choose Kanban or Scrum template
+- File bugs using: Summary, Description, Priority, Status
+- Bug workflow: To Do → In Progress → Done
+- Always include: Steps to Reproduce, Expected, Actual, Environment
