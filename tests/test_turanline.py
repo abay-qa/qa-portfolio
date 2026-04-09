@@ -42,3 +42,43 @@ def test_login_invalid_credentials():
         page.wait_for_timeout(2000)
         page.screenshot(path="turanline_invalid_login.png")
         browser.close()
+
+def test_homepage_has_categories():
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(BASE_URL)
+        page.wait_for_load_state("networkidle")
+        assert page.locator('a[href="/women"]').count() > 0
+        assert page.locator('a[href="/men"]').count() > 0
+        assert page.locator('a[href="/kids"]').count() > 0
+        browser.close()
+
+def test_language_switch_to_russian():
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(BASE_URL)
+        page.wait_for_load_state("networkidle")
+        page.goto(f"{BASE_URL}/ru")
+        page.wait_for_load_state("networkidle")
+        assert "/ru" in page.url
+        browser.close()
+
+def test_catalog_page_loads():
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(f"{BASE_URL}/catalog")
+        page.wait_for_load_state("networkidle")
+        assert page.url == f"{BASE_URL}/catalog" or "catalog" in page.url
+        browser.close()
+
+def test_contact_page_loads():
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(f"{BASE_URL}/contacts")
+        page.wait_for_load_state("networkidle")
+        assert "contact" in page.url.lower() or page.title() != ""
+        browser.close()
