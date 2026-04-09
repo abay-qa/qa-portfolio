@@ -120,3 +120,130 @@ def test_security_long_input():
         page.wait_for_load_state("domcontentloaded")
         long_string = "A" * 1000
         page.get_by_role("textbox").nth(1).fill(long_string)
+
+REG_URL = "https://www.turanline.com/ru/registration"
+
+def test_registration_page_loads():
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(REG_URL)
+        page.wait_for_load_state("domcontentloaded")
+        assert "registration" in page.url
+        browser.close()
+
+def test_registration_blank_fields():
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(REG_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.locator("button.signBtn, button[class*='signBtn'], button[class*='registerBtn']").first.click()
+        page.wait_for_timeout(2000)
+        page.screenshot(path="turanline_reg_blank.png")
+        browser.close()
+
+def test_registration_invalid_name():
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(REG_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.locator('input[placeholder="Введите свое имя"]').fill("123!@#")
+        page.wait_for_timeout(1000)
+        page.screenshot(path="turanline_reg_invalid_name.png")
+        browser.close()
+
+def test_registration_weak_password():
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(REG_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.locator('input[placeholder="Введите свой пароль"]').fill("123")
+        page.wait_for_timeout(1000)
+        page.screenshot(path="turanline_reg_weak_password.png")
+        browser.close()
+
+def test_registration_sql_injection():
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(REG_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.locator('input[placeholder="Введите свое имя"]').fill("' OR 1=1 --")
+        page.locator('input[placeholder="Введите свой пароль"]').fill("' OR 1=1 --")
+        page.locator("button.signBtn, button[class*='signBtn'], button[class*='registerBtn']").first.click()
+        page.wait_for_timeout(2000)
+        page.screenshot(path="turanline_reg_sqli.png")
+        assert "registration" in page.url or "login" not in page.url
+        browser.close()
+
+def test_debug_registration():
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False, slow_mo=1000)
+        page = browser.new_page()
+        page.goto(REG_URL)
+        page.wait_for_load_state("domcontentloaded")
+        buttons = page.locator("button").all()
+        for i, btn in enumerate(buttons):
+            print(f"Button {i}: text={btn.inner_text()}, class={btn.get_attribute('class')}")
+        browser.close()
+
+REG_URL = "https://www.turanline.com/ru/registration"
+
+def test_registration_page_loads():
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(REG_URL)
+        page.wait_for_load_state("domcontentloaded")
+        assert "registration" in page.url
+        browser.close()
+
+def test_registration_blank_fields():
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(REG_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.locator(".btnRegg").click()
+        page.wait_for_timeout(2000)
+        page.screenshot(path="turanline_reg_blank.png")
+        browser.close()
+
+def test_registration_invalid_name():
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(REG_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.locator('input[placeholder="Введите свое имя"]').fill("123!@#")
+        page.wait_for_timeout(1000)
+        page.screenshot(path="turanline_reg_invalid_name.png")
+        browser.close()
+
+def test_registration_weak_password():
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(REG_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.locator('input[placeholder="Введите свой пароль"]').fill("123")
+        page.wait_for_timeout(1000)
+        page.screenshot(path="turanline_reg_weak_password.png")
+        browser.close()
+
+def test_registration_sql_injection():
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(REG_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.locator('input[placeholder="Введите свое имя"]').fill("' OR 1=1 --")
+        page.locator('input[placeholder="Введите свой пароль"]').fill("' OR 1=1 --")
+        page.locator(".btnRegg").click()
+        page.wait_for_timeout(2000)
+        page.screenshot(path="turanline_reg_sqli.png")
+        assert "registration" in page.url
+        browser.close()
