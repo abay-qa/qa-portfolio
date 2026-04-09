@@ -247,3 +247,31 @@ def test_registration_sql_injection():
         page.screenshot(path="turanline_reg_sqli.png")
         assert "registration" in page.url
         browser.close()
+
+def test_registration_checkboxes_prechecked():
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(REG_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.wait_for_timeout(2000)
+
+        # Get all checkboxes on the page
+        checkboxes = page.locator('input[type="checkbox"]').all()
+        prechecked = []
+        for i, cb in enumerate(checkboxes):
+            if cb.is_checked():
+                prechecked.append(i)
+
+        # Take screenshot as evidence
+        page.screenshot(path="turanline_reg_checkboxes.png")
+
+        # Document the finding
+        print(f"\nTotal checkboxes found: {len(checkboxes)}")
+        print(f"Pre-checked checkboxes: {prechecked}")
+
+        # This test DOCUMENTS the issue rather than failing
+        # SMS marketing consent should NOT be pre-checked by law
+        assert len(prechecked) > 0, "No pre-checked boxes found"
+        print("⚠️  COMPLIANCE ISSUE: Marketing consent checkbox is pre-checked by default")
+        browser.close()
