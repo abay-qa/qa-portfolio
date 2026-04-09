@@ -82,3 +82,49 @@ def test_contact_page_loads():
         page.wait_for_load_state("networkidle")
         assert "contact" in page.url.lower() or page.title() != ""
         browser.close()
+
+def test_security_sql_injection():
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(f"{BASE_URL}/login")
+        page.wait_for_load_state("networkidle")
+        page.get_by_role("textbox").nth(1).fill("' OR 1=1 --")
+        page.locator('input[type="password"]').fill("' OR 1=1 --")
+        page.locator(".signBtn").click()
+        page.wait_for_timeout(3000)
+        page.screenshot(path="turanline_sql_injection.png")
+        assert page.url != f"{BASE_URL}/dashboard"
+        assert page.url != f"{BASE_URL}/profile"
+        browser.close()
+
+def test_security_xss():
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(f"{BASE_URL}/login")
+        page.wait_for_load_state("networkidle")
+        page.get_by_role("textbox").nth(1).fill("<script>alert('xss')</script>")
+        page.locator('input[type="password"]').fill("<script>alert('xss')</script>")
+        page.locator(".signBtn").click()
+        page.wait_for_timeout(3000)
+        page.screenshot(path="turanline_xss.png")
+        assert page.url != f"{BASE_URL}/dashboard"
+        assert page.url != f"{BASE_URL}/profile"
+        browser.close()
+
+def test_security_long_input():
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(f"{BASE_URL}/login")
+        page.wait_for_load_state("networkidle")
+        long_string = "A" * 1000
+        page.get_by_role("textbox").nth(1).fill(long_string)
+        page.locator('input[type="password"]').fill(long_string)
+        page.locator(".signBtn").click()
+        page.wait_for_timeout(3000)
+        page.screenshot(path="turanline_long_input.png")
+        assert page.url != f"{BASE_URL}/dashboard"
+        assert page.url != f"{BASE_URL}/profile"
+        browser.close()
